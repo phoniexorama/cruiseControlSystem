@@ -11,8 +11,10 @@ pipeline {
             }
             steps {
                 script {
-                    ignoringErrorsAndWarnings {
-                        matlabScript("crs_controllerTestFile;")
+                    node('EC2MatlabServer') {
+                        ignoringErrorsAndWarnings {
+                            matlabScript("crs_controllerTestFile;")
+                        }
                     }
                 }
             }
