@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('verify') {
+        /*stage('verify') {
             agent {
                 label 'LocalMatlabServer'
             }
@@ -21,9 +21,9 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
-        stage('build') {
+        /*stage('build') {
             agent {
                 label 'LocalMatlabServer'
             }
@@ -38,11 +38,11 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
         stage('testing') {
             agent {
-                label 'LocalMatlabServer'
+                label 'EC2MatlabServer'
             }
             steps {
                 script {
