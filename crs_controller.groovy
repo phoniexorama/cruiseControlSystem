@@ -35,12 +35,7 @@ pipeline {
                     // Any logs that were generated in the previous stages will be cleared after this stage
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
-                    matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
-                }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["./Design/crs_controller/pipeline/analyze/**/*", "./Code/codegen/crs_controller_ert_rtw"])
-                    }
+                    //matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
                 }
             }
         }
@@ -52,10 +47,7 @@ pipeline {
             steps {
                 echo "Any deployments of code can be made here"
                 echo "All artifacts of previous stage can be found here"
-                script {
-                    // Curl command to download artifacts
-                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
-                }
+                
             }
             post {
                 always {
