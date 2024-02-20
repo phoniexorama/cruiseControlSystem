@@ -66,8 +66,9 @@ def ignoringErrorsAndWarnings(body) {
     try {
         body()
     } catch (e) {
-        if (!(e instanceof Warning) && !(e instanceof LicenseError)) {
-            throw e
+        if (!(e.toString().contains("LicenseManager") && e.toString().contains("checkout failed"))) {
+            echo "Error message: ${e}"
+            currentBuild.result = 'FAILURE'
         }
     }
 }
