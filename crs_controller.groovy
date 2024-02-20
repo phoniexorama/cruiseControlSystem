@@ -1,14 +1,13 @@
 pipeline {
-    agent none
+    agent {
+    label 'EC2MatlabServer'
+}
     environment {
         LOGS_PATH = "./Code"
         ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
     }
     stages {
         stage('testing') {
-            agent {
-                label 'EC2MatlabServer'
-            }
             steps {
                 script {
                     node('EC2MatlabServer') {
