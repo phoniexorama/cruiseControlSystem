@@ -6,39 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('verify') {
-            agent {
-                label 'LocalMatlabServer'
-            }
-            steps {
-                script {
-                    // This job executes the Model Advisor Checks for the model
-                    matlabScript("crs_controllerModelAdvisor;")
-                }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["$LOGS_PATH/logs/", "./Design/crs_controller/pipeline/analyze/**/*"])
-                    }
-                }
-            }
-        }
-
-        stage('build') {
-            agent {
-                label 'LocalMatlabServer'
-            }
-            steps {
-                script {
-                    // This job performs code generation on the model
-                    matlabScript("crs_controllerBuild;")
-                }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["./Code/codegen/crs_controller_ert_rtw", "./Design/crs_controller/pipeline/analyze/**/*", "$LOGS_PATH/logs/"])
-                    }
-                }
-            }
-        }
 
         stage('testing') {
             agent {
@@ -60,7 +27,7 @@ pipeline {
 
         stage('package') {
             agent {
-                label 'LocalMatlabServer'
+                label 'EC2MatlabServer'
             }
             steps {
                 script {
@@ -80,7 +47,7 @@ pipeline {
 
         stage('Deploy') {
             agent {
-                label 'LocalMatlabServer'
+                label 'EC2MatlabServer'
             }
             steps {
                 echo "Any deployments of code can be made here"
