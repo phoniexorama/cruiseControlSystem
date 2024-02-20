@@ -100,5 +100,5 @@ pipeline {
 }
 
 def matlabScript(String script) {
-    bat "matlab -nodesktop -batch \"openProject('CruiseControlExample.prj'); ${script}\""
+    bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
