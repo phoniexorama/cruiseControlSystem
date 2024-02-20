@@ -34,5 +34,5 @@ def ignoringErrorsAndWarnings(body) {
 }
 
 def matlabScript(String script) {
-    bat "matlab -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
+    bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
