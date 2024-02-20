@@ -19,12 +19,7 @@ pipeline {
                 }
             }
         }
-    }
-    post {
-        always {
-            junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
-        }
-    }
+    }  
 }
 
 def ignoringErrorsAndWarnings(body) {
