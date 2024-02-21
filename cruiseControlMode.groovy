@@ -1,5 +1,9 @@
 pipeline {
     agent none
+    environment {
+        LOGS_PATH = "Code"
+        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
+    }
     stages {
         stage('Verify') {
             agent {
@@ -10,10 +14,10 @@ pipeline {
                     // This job executes the Model Advisor Check for the model
                     matlabScript("CruiseControlModeModelAdvisor;")
                 }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["$LOGS_PATH/logs/", "./Design/CruiseControlMode/pipeline/analyze/**/*"])
-                    }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/CruiseControlMode/pipeline/analyze/**/*"
                 }
             }
         }
@@ -27,10 +31,10 @@ pipeline {
                     // This job performs code generation on the model
                     matlabScript("CruiseControlModeBuild;")
                 }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["./Code/codegen/CruiseControlMode_ert_rtw", "./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/"])
-                    }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Code/codegen/CruiseControlMode_ert_rtw, ./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
         }
@@ -44,11 +48,11 @@ pipeline {
                     // This job executes the unit tests defined in the collection
                     matlabScript("CruiseControlModeTest;")
                 }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/", "./Code/codegen/CruiseControlMode_ert_rtw"])
-                        junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
-                    }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/CruiseControlMode_ert_rtw"
+                    junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
         }
@@ -65,10 +69,10 @@ pipeline {
                     echo "There is a Summary report generated cruiseControlModeReport.html"
                     matlabScript("generateXMLFromLogs('CruiseControlMode'); generateHTMLReport('CruiseControlMode'); deleteLogs;")
                 }
-                post {
-                    always {
-                        archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"])
-                    }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
                 }
             }
         }
@@ -87,7 +91,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"])
+                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
                 }
             }
         }
