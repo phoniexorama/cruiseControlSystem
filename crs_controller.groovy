@@ -2,7 +2,10 @@ pipeline {
     agent none
     environment {
         LOGS_PATH = "Code"
-        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
+        AWS_REGION = 'eu-central-1' // Specify a valid AWS region
+        BUCKET_NAME = 'cruisecontrolsystem'
+        DIRECTORY_TO_ZIP = 'Design/crs_controller/pipeline/analyze'
+        ZIP_FILE_NAME = 'crs_controller.zip'
     }
     stages {
         stage('Verify') {
@@ -74,7 +77,10 @@ pipeline {
             }
         }
 
-        stage('Upload to S3') {
+        stage('Deploy to S3') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
             steps {
                 script {
                     def zipFile = new File(ZIP_FILE_NAME)
