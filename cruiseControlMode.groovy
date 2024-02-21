@@ -17,7 +17,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["$LOGS_PATH/logs/", "./Design/CruiseControlMode/pipeline/analyze/**/*"])
+                    archiveArtifacts artifacts: ["$LOGS_PATH/logs/", "./Design/CruiseControlMode/pipeline/analyze/**/*"]
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["./Code/codegen/CruiseControlMode_ert_rtw", "./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/"])
+                    archiveArtifacts artifacts: ["./Code/codegen/CruiseControlMode_ert_rtw", "./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/"]
                 }
             }
         }
@@ -51,7 +51,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/", "./Code/codegen/CruiseControlMode_ert_rtw"])
+                    archiveArtifacts artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "$LOGS_PATH/logs/", "./Code/codegen/CruiseControlMode_ert_rtw"]
                     junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
@@ -72,7 +72,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"])
+                    archiveArtifacts artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"]
                 }
             }
         }
@@ -91,7 +91,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts(artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"])
+                    archiveArtifacts artifacts: ["./Design/CruiseControlMode/pipeline/analyze/**/*", "./Code/codegen/CruiseControlMode_ert_rtw"]
                 }
             }
         }
