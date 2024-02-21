@@ -48,7 +48,8 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
-                    junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
+                    //junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
+                    junit '**/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
         }
