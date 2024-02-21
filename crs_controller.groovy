@@ -49,14 +49,14 @@ pipeline {
                 always {
                     archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
                     //junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
-                    junit '**/CruiseControlModeJUnitFormatTestResults.xml'
+                    //junit '**/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
         }
 
         stage('Package') {
             agent {
-                label 'LocalMatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
