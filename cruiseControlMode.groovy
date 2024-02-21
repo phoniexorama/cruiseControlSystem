@@ -1,7 +1,7 @@
 pipeline {
     agent none
     environment {
-        LOGS_PATH = "./Code"
+        LOGS_PATH = "Code"
         ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
     }
     stages {
