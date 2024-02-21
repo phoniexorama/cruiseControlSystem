@@ -74,21 +74,45 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            agent {
-                label 'WinLocalagent' // Label for Windows agent
-            }
+        stage('Upload to S3') {
             steps {
-                echo "Any deployments of code can be made here"
-                echo "All artifacts of previous stage can be found here"
                 script {
-                    // Curl command to download artifacts
-                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                    def zipFile = new File(ZIP_FILE_NAME)
+                    zipFile.delete() // Delete the zip file if it already exists
+
+                    // Create a new zip file
+                    def zipOutput = new java.util.zip.ZipOutputStream(new FileOutputStream(zipFile))
+
+                    // Function to add a file to the zip
+                    def addToZip(File fileToAdd, String basePath) {
+                        def relativePath = fileToAdd.absolutePath - basePath
+                        if (fileToAdd.isDirectory()) {
+                            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath + "/"))
+                            fileToAdd.listFiles().each { nestedFile ->
+                                addToZip(nestedFile, basePath)
+                            }
+                        } else {
+                            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath))
+                            fileToAdd.withInputStream { inputStream ->
+                                zipOutput << inputStream
+                            }
+                        }
+                    }
+
+                    // Add files from the specified directory to the zip
+                    addToZip(new File(DIRECTORY_TO_ZIP), DIRECTORY_TO_ZIP)
+
+                    // Close the zip output stream
+                    zipOutput.close()
+
+                    // Upload the zip file to S3
+                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
+                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
+
+                    def fileObject = new FileInputStream(ZIP_FILE_NAME)
+                    amazonS3.putObject(env.BUCKET_NAME, ZIP_FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
+
+                    echo "Zip file uploaded successfully to S3 bucket."
                 }
             }
         }
