@@ -24,7 +24,7 @@ pipeline {
 
         stage('Build') {
             agent {
-                label 'LocalMatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
