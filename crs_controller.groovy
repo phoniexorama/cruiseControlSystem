@@ -29,12 +29,8 @@ pipeline {
             steps {
                 script {
                     // This job performs code generation on the model
-                    matlabScript("crs_controllerBuild;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Code/codegen/crs_controller_ert_rtw, ./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    echo "Bypass this stage"
+                    //matlabScript("crs_controllerBuild;")
                 }
             }
         }
