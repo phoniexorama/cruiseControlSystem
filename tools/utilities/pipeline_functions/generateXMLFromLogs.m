@@ -9,7 +9,6 @@ function generateXMLFromLogs(modelName)
    load(fullfile('Code','logsPath.mat'),'path');
    %fetching all the results data
    modelAdvisorResult = jsondecode(fileread(fullfile(path,'logs',[modelName 'ModelAdvisorLog.json'])));
-   buildResult = jsondecode(fileread(fullfile(path,'logs',[modelName 'BuildLog.json'])));
    testResult = jsondecode(fileread(fullfile(path,'logs',[modelName 'TestLog.json'])));
    %creating the summary report file
    fileID = fopen(fullfile(path,'logs',[modelName 'Report.xml']),'w');
@@ -21,12 +20,6 @@ function generateXMLFromLogs(modelName)
    fprintf(fileID, '<Description>ModelAdvisor</Description>\n');
    fprintf(fileID, append('<Passed>',num2str(modelAdvisorResult.Passed),'</Passed>\n'));
    fprintf(fileID, append('<Path>',strrep(modelAdvisorResult.Path,filesep,[filesep filesep]),'</Path>\n'));
-   fprintf(fileID, '</stage>\n');
-   % filling Build results summary
-   fprintf(fileID, '<stage>\n');
-   fprintf(fileID, '<Description>Build</Description>\n');
-   fprintf(fileID, append('<Passed>',buildResult.Result,'</Passed>\n'));
-   fprintf(fileID, append('<Path>',strrep(buildResult.Path,filesep,[filesep filesep]),'</Path>\n'));
    fprintf(fileID, '</stage>\n');
    % filling test results summary
    fprintf(fileID, '<stage>\n');
