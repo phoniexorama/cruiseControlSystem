@@ -69,7 +69,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*"
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*"
                 }
             }
         }
