@@ -82,47 +82,45 @@ pipeline {
                 label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
-                script {
-                    def zipFile = new File(ZIP_FILE_NAME)
-                    zipFile.delete() // Delete the zip file if it already exists
+                addToZip(new File(DIRECTORY_TO_ZIP), DIRECTORY_TO_ZIP)
 
-                    // Create a new zip file
-                    def zipOutput = new java.util.zip.ZipOutputStream(new FileOutputStream(zipFile))
+                // Upload the zip file to S3
+                def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
+                amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
 
-                    // Function to add a file to the zip
-                    def addToZip(File fileToAdd, String basePath) {
-                        def relativePath = fileToAdd.absolutePath - basePath
-                        if (fileToAdd.isDirectory()) {
-                            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath + "/"))
-                            fileToAdd.listFiles().each { nestedFile ->
-                                addToZip(nestedFile, basePath)
-                            }
-                        } else {
-                            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath))
-                            fileToAdd.withInputStream { inputStream ->
-                                zipOutput << inputStream
-                            }
-                        }
-                    }
+                def fileObject = new FileInputStream(ZIP_FILE_NAME)
+                amazonS3.putObject(env.BUCKET_NAME, ZIP_FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
 
-                    // Add files from the specified directory to the zip
-                    addToZip(new File(DIRECTORY_TO_ZIP), DIRECTORY_TO_ZIP)
-
-                    // Close the zip output stream
-                    zipOutput.close()
-
-                    // Upload the zip file to S3
-                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
-                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
-
-                    def fileObject = new FileInputStream(ZIP_FILE_NAME)
-                    amazonS3.putObject(env.BUCKET_NAME, ZIP_FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
-
-                    echo "Zip file uploaded successfully to S3 bucket."
-                }
+                echo "Zip file uploaded successfully to S3 bucket."
             }
         }
     }
+}
+
+def addToZip(File fileToAdd, String basePath) {
+    def zipFile = new File(ZIP_FILE_NAME)
+    zipFile.delete() // Delete the zip file if it already exists
+
+    // Create a new zip file
+    def zipOutput = new java.util.zip.ZipOutputStream(new FileOutputStream(zipFile))
+
+    // Function to add a file to the zip
+    def addToZipRecursive = { File nestedFile ->
+        def relativePath = nestedFile.absolutePath - basePath
+        if (nestedFile.isDirectory()) {
+            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath + "/"))
+            nestedFile.listFiles().each { addToZipRecursive(it) }
+        } else {
+            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath))
+            nestedFile.withInputStream { inputStream -> zipOutput << inputStream }
+        }
+    }
+
+    // Add files from the specified directory to the zip
+    addToZipRecursive(fileToAdd)
+
+    // Close the zip output stream
+    zipOutput.close()
 }
 
 def matlabScript(String script) {
