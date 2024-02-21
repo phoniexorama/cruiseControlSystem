@@ -2,10 +2,7 @@ pipeline {
     agent none
     environment {
         LOGS_PATH = "Code"
-        AWS_REGION = 'eu-central-1' // Specify a valid AWS region
-        BUCKET_NAME = 'cruisecontrolsystem'
-        DIRECTORY_TO_ZIP = 'Design/crs_controller/pipeline/analyze'
-        ZIP_FILE_NAME = 'crs_controller.zip'
+        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
     }
     stages {
         stage('Verify') {
@@ -27,13 +24,17 @@ pipeline {
 
         stage('Build') {
             agent {
-                label 'EC2MatlabServer' // Label for Windows agent
+                label 'LocalMatlabServer' // Label for Windows agent
             }
             steps {
                 script {
                     // This job performs code generation on the model
-                    echo "Bypass this stage"
-                    //matlabScript("crs_controllerBuild;")
+                    matlabScript("crs_controllerBuild;")
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Code/codegen/crs_controller_ert_rtw, ./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
         }
@@ -51,8 +52,7 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
-                    //junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
-                    //junit '**/CruiseControlModeJUnitFormatTestResults.xml'
+                    junit './Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
                 }
             }
         }
@@ -72,55 +72,30 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*"
+                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
                 }
             }
         }
 
-        stage('Deploy to S3') {
+        stage('Deploy') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
-                addToZip(new File(DIRECTORY_TO_ZIP), DIRECTORY_TO_ZIP)
-
-                // Upload the zip file to S3
-                def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
-                amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
-
-                def fileObject = new FileInputStream(ZIP_FILE_NAME)
-                amazonS3.putObject(env.BUCKET_NAME, ZIP_FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
-
-                echo "Zip file uploaded successfully to S3 bucket."
+                echo "Any deployments of code can be made here"
+                echo "All artifacts of previous stage can be found here"
+                script {
+                    // Curl command to download artifacts
+                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                }
             }
         }
     }
-}
-
-def addToZip(File fileToAdd, String basePath) {
-    def zipFile = new File(ZIP_FILE_NAME)
-    zipFile.delete() // Delete the zip file if it already exists
-
-    // Create a new zip file
-    def zipOutput = new java.util.zip.ZipOutputStream(new FileOutputStream(zipFile))
-
-    // Function to add a file to the zip
-    def addToZipRecursive = { File nestedFile ->
-        def relativePath = nestedFile.absolutePath - basePath
-        if (nestedFile.isDirectory()) {
-            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath + "/"))
-            nestedFile.listFiles().each { addToZipRecursive(it) }
-        } else {
-            zipOutput.putNextEntry(new java.util.zip.ZipEntry(relativePath))
-            nestedFile.withInputStream { inputStream -> zipOutput << inputStream }
-        }
-    }
-
-    // Add files from the specified directory to the zip
-    addToZipRecursive(fileToAdd)
-
-    // Close the zip output stream
-    zipOutput.close()
 }
 
 def matlabScript(String script) {
