@@ -65,7 +65,7 @@ pipeline {
                 script {
                     // The summary report is generated which shows results from the previous stages.
                     // Any logs that were generated in the previous stages will be cleared after this stage
-                    echo "The model CruiseControlMode has been checked"
+                    echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
                 }
