@@ -22,7 +22,7 @@ pipeline {
                     writeFile file: filePath, text: env.FILE_CONTENT
 
                     // Find the location of the AWS CLI executable dynamically
-                    def awsCliPath = bat(script: 'cmd /c where.exe aws.cmd', returnStdout: true).trim()
+                   // def awsCliPath = bat(script: 'cmd /c where.exe aws.cmd', returnStdout: true).trim()
 
                     // Upload the file to S3 using AWS CLI
                     bat "\"${awsCliPath}\" s3 cp \"${filePath}\" s3://${BUCKET_NAME}/${FILE_NAME} --region ${AWS_REGION}"
