@@ -1,17 +1,35 @@
 pipeline {
-    //agent any
-    agent {
-        label 'EC2MatlabServer' // Label for Windows agent
-        }
+    agent none
     environment {
+        LOGS_PATH = "Code"
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
-        BUCKET_NAME = 'cruisecontrolsystem'
-        FILE_NAME = 'hello_keerthi.txt'
+        BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
+        //FILE_NAME = 'crc_controllerBuildLog.json'
+        FILE_PATH = 'Code/Logs/'
+        FILE_NAME = 'hello_world.txt'
         FILE_CONTENT = 'Hello World!'
     }
-
     stages {
+        stage('Verify') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
+            steps {
+                script {
+                    // This job executes the Model Advisor Check for the model
+                    matlabScript("crs_controllerModelAdvisor;")
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
+                }
+            }
+        }
         stage('Upload to S3') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
             steps {
                 script {
                     def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
@@ -25,4 +43,8 @@ pipeline {
             }
         }
     }
+}
+
+def matlabScript(String script) {
+    bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
