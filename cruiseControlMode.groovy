@@ -81,10 +81,10 @@ pipeline {
             agent {
                 label 'WinLocalagent' // Label for Windows agent
             }
-            steps {
-                echo "Any deployments of code can be made here"
-                echo "All artifacts of previous stage can be found here"
+            steps {         
                 script {
+                    echo "Any deployments of code can be made here"
+                    echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/CruiseControlModeArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=CruiseControlModePackage\""
                 }
