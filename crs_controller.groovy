@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'EC2MatlabServer' // Label for Windows agent
-    }
+    agent any
 
     environment {
         LOGS_PATH = "Code"
@@ -13,19 +11,22 @@ pipeline {
 
     stages {
         stage('Upload to S3') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
             steps {
                 script {
                     // Construct the file path where the file will be stored temporarily
                     def filePath = "${env.WORKSPACE}\\${env.FILE_NAME}"
-
+                    
                     // Write the content to the file
                     writeFile file: filePath, text: env.FILE_CONTENT
 
                     // Find the location of the AWS CLI executable dynamically
-                   // def awsCliPath = bat(script: 'cmd /c where.exe aws.cmd', returnStdout: true).trim()
+                    def awsCliPath = bat(script: 'cmd /c where.exe aws.cmd', returnStdout: true).trim()
 
                     // Upload the file to S3 using AWS CLI
-                    bat "\"${awsCliPath}\" s3 cp \"${filePath}\" s3://${BUCKET_NAME}/${FILE_NAME} --region ${AWS_REGION}"
+                    bat "\"${awsCliPath}\" s3 cp \"${filePath}\" s3://${env.BUCKET_NAME}/${env.FILE_NAME} --region ${env.AWS_REGION}"
 
                     echo "File uploaded successfully to S3 bucket."
                 }
