@@ -7,6 +7,7 @@ pipeline {
         BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
         FILE_NAME = 'hello_world.txt'
         FILE_CONTENT = 'Hello World!'
+        AWS_CLI_PATH = 'C:\\Program Files\\Amazon\\AWSCLI\\aws.exe' // Path to AWS CLI executable
     }
 
     stages {
@@ -17,13 +18,13 @@ pipeline {
             steps {
                 script {
                     // Construct the file path where the file will be stored temporarily
-                    def filePath = "${env.WORKSPACE}\\${env.FILE_NAME}"
+                    def filePath = "${env.WORKSPACE}/${env.FILE_NAME}"
                     
                     // Write the content to the file
                     writeFile file: filePath, text: env.FILE_CONTENT
 
                     // Upload the file to S3 using AWS CLI
-                    bat "aws s3 cp ${filePath} s3://${BUCKET_NAME}/${FILE_NAME} --region ${AWS_REGION}"
+                    bat "\"${AWS_CLI_PATH}\" s3 cp ${filePath} s3://${BUCKET_NAME}/${FILE_NAME} --region ${AWS_REGION}"
 
                     echo "File uploaded successfully to S3 bucket."
                 }
