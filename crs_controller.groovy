@@ -2,7 +2,10 @@ pipeline {
     agent none
     environment {
         LOGS_PATH = "Code"
-        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
+        AWS_REGION = 'eu-central-1' // Specify a valid AWS region
+        BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
+        FILE_NAME = 'crc_controllerBuildLog.json'
+        FILE_PATH = 'Code/Logs/'
     }
     stages {
         stage('Verify') {
@@ -22,76 +25,22 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            agent {
-                label 'LocalMatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    // This job performs code generation on the model
-                    matlabScript("crs_controllerBuild;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Code/codegen/crs_controller_ert_rtw, ./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
-                }
-            }
-        }
-
-        stage('Testing') {
-            agent {
-                label 'EC2MatlabServer' // Label for EC2 agent
-            }
-            steps {
-                script {
-                    // This job executes the unit tests defined in the collection
-                    matlabScript("crs_controllerTestFile;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
-                    //junit 'Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
-                }
-            }
-        }
-
-        stage('Package') {
+        stage('upload S3') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
-                    // The summary report is generated which shows results from the previous stages.
-                    // Any logs that were generated in the previous stages will be cleared after this stage
-                    echo "The model crs_controller has been checked"
-                    echo "There is a Summary report generated crs_controllerReport.html"
-                    matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
-                }
-            }
-        }
+                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
+                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
 
-        stage('Deploy') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                echo "Any deployments of code can be made here"
-                echo "All artifacts of previous stage can be found here"
-                script {
-                    // Curl command to download artifacts
-                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                    // Assuming you have the file to upload in your workspace
+                    def fileContent = readFile(file: "${env.WORKSPACE}/${env.FILE_NAME}")
+                    def fileObject = new java.io.ByteArrayInputStream(fileContent.bytes)
+
+                    amazonS3.putObject(env.BUCKET_NAME, env.FILE_PATH + env.FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
+
+                    echo "File uploaded successfully to S3 bucket."
                 }
             }
         }
