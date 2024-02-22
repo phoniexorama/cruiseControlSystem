@@ -1,6 +1,7 @@
 pipeline {
-    agent any
-
+    agent {
+        label 'EC2MatlabServer' // Label for Windows agent
+    }
     environment {
         LOGS_PATH = "Code"
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
@@ -19,7 +20,7 @@ pipeline {
                 script {
                     // Construct the file path where the file will be stored temporarily
                     def filePath = "${env.WORKSPACE}/${env.FILE_NAME}"
-                    
+
                     // Write the content to the file
                     writeFile file: filePath, text: env.FILE_CONTENT
 
