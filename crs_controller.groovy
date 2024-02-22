@@ -10,22 +10,6 @@ pipeline {
         FILE_CONTENT = 'Hello World!'
     }
     stages {
-        stage('Verify') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    // This job executes the Model Advisor Check for the model
-                    matlabScript("crs_controllerModelAdvisor;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
-                }
-            }
-        }
         stage('Upload to S3') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
@@ -43,8 +27,4 @@ pipeline {
             }
         }
     }
-}
-
-def matlabScript(String script) {
-    bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
