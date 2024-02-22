@@ -45,29 +45,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Download from S3') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
-                    amazonS3.setEndpoint("s3.${env.AWS_REGION}.amazonaws.com")
-
-                    def s3Object = amazonS3.getObject(new com.amazonaws.services.s3.model.GetObjectRequest(env.BUCKET_NAME, env.FILE_PATH + env.FILE_NAME))
-                    
-                    def file = new java.io.File("${env.DOWNLOAD_DIR}/${env.FILE_NAME}")
-                    file.withOutputStream { outputStream ->
-                        s3Object.getObjectContent().withStream { inputStream ->
-                            outputStream << inputStream
-                        }
-                    }
-
-                    echo "File downloaded successfully from S3 bucket."
-                }
-            }
-        }
     }
 }
 
