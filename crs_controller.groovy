@@ -1,32 +1,31 @@
 pipeline {
-    agent any
+    agent {
+        label 'EC2MatlabServer' // Label for Windows agent
+    }
 
     environment {
-        LOGS_PATH = "Code"
+        FILE_NAME = 'hello_world.txt' // Name of the file to upload
+        FILE_CONTENT = 'Hello, World!' // Content of the file
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
-        BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
-        FILE_NAME = 'hello_world.txt'
-        FILE_CONTENT = 'Hello World!'
+        BUCKET_NAME = 'cruisecontrolsystem' // Specify your S3 bucket name
     }
 
     stages {
         stage('Upload to S3') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
             steps {
                 script {
-                    // Construct the file path where the file will be stored temporarily
-                    def filePath = "${env.WORKSPACE}\\${env.FILE_NAME}"
-                    
-                    // Write the content to the file
-                    writeFile file: filePath, text: env.FILE_CONTENT
+                    def awsCredentials = com.amazonaws.auth.DefaultAWSCredentialsProviderChain.getInstance().getCredentials()
+                    def s3Client = new com.amazonaws.services.s3.AmazonS3ClientBuilder.standard()
+                            .withRegion(env.AWS_REGION)
+                            .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                            .build()
 
-                    // Find the location of the AWS CLI executable dynamically
-                    def awsCliPath = bat(script: 'cmd /c where.exe aws.cmd', returnStdout: true).trim()
+                    def fileContent = env.FILE_CONTENT.bytes
+                    def metadata = new com.amazonaws.services.s3.model.ObjectMetadata()
+                    metadata.setContentLength(fileContent.length)
 
-                    // Upload the file to S3 using AWS CLI
-                    bat "\"${awsCliPath}\" s3 cp \"${filePath}\" s3://${env.BUCKET_NAME}/${env.FILE_NAME} --region ${env.AWS_REGION}"
+                    // Upload the file to S3
+                    s3Client.putObject(env.BUCKET_NAME, env.FILE_NAME, new ByteArrayInputStream(fileContent), metadata)
 
                     echo "File uploaded successfully to S3 bucket."
                 }
