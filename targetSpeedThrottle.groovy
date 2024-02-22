@@ -91,7 +91,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
                 }
             }
         }
