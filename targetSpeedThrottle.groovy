@@ -52,7 +52,7 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
-                    junit './Design/TargetSpeedThrottle/pipeline/analyze/testing/TargetSpeedThrottleJUnitFormatTestResults.xml'
+                    //junit './Design/TargetSpeedThrottle/pipeline/analyze/testing/TargetSpeedThrottleJUnitFormatTestResults.xml'
                 }
             }
         }
