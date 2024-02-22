@@ -36,10 +36,10 @@ pipeline {
                     amazonS3.setEndpoint("s3.${env.AWS_REGION}.amazonaws.com")
 
                     // Assuming you have the file to upload in your workspace
-                    def fileContent = readFile(file: "${env.WORKSPACE}/${env.FILE_NAME}")
+                    def fileContent = readFile(file: "${env.WORKSPACE}/${JOB_NAME}/Code/logs/${env.FILE_NAME}")
                     def fileObject = new java.io.ByteArrayInputStream(fileContent.bytes)
 
-                    amazonS3.putObject(env.BUCKET_NAME, env.FILE_PATH + env.FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
+                    amazonS3.putObject(env.BUCKET_NAME, "${JOB_NAME}/Code/Logs/crc_controllerBuildLog.json", fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
 
                     echo "File uploaded successfully to S3 bucket."
                 }
