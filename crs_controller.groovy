@@ -13,9 +13,6 @@ pipeline {
 
     stages {
         stage('Upload to S3') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
             steps {
                 script {
                     // Construct the file path where the file will be stored temporarily
