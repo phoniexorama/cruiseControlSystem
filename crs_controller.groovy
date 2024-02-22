@@ -1,14 +1,14 @@
 pipeline {
-    agent none
+    agent any
+
     environment {
         LOGS_PATH = "Code"
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
         BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
-        //FILE_NAME = 'crc_controllerBuildLog.json'
-        FILE_PATH = 'Code/Logs/'
         FILE_NAME = 'hello_world.txt'
         FILE_CONTENT = 'Hello World!'
     }
+
     stages {
         stage('Upload to S3') {
             agent {
@@ -16,11 +16,14 @@ pipeline {
             }
             steps {
                 script {
-                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
-                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
+                    // Construct the file path where the file will be stored temporarily
+                    def filePath = "${env.WORKSPACE}\\${env.FILE_NAME}"
+                    
+                    // Write the content to the file
+                    writeFile file: filePath, text: env.FILE_CONTENT
 
-                    def fileObject = new java.io.ByteArrayInputStream(env.FILE_CONTENT.bytes)
-                    amazonS3.putObject(env.BUCKET_NAME, env.FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
+                    // Upload the file to S3 using AWS CLI
+                    bat "aws s3 cp ${filePath} s3://${BUCKET_NAME}/${FILE_NAME} --region ${AWS_REGION}"
 
                     echo "File uploaded successfully to S3 bucket."
                 }
