@@ -52,7 +52,7 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/CruiseControlMode_ert_rtw"
-                    junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
+                    //junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
         }
