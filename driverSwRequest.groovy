@@ -91,7 +91,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
+                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
                 }
             }
         }
