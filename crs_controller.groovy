@@ -4,8 +4,10 @@ pipeline {
         LOGS_PATH = "Code"
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
         BUCKET_NAME = 'cruisecontrolsystem' // S3 Bucket name
-        FILE_NAME = 'crc_controllerBuildLog.json'
+        //FILE_NAME = 'crc_controllerBuildLog.json'
         FILE_PATH = 'Code/Logs/'
+        FILE_NAME = 'hello_world.txt'
+        FILE_CONTENT = 'Hello World!'
         DOWNLOAD_DIR = "${env.WORKSPACE}/DownloadedFiles" // Directory to download the file
     }
     stages {
@@ -25,25 +27,19 @@ pipeline {
                 }
             }
         }
-
         stage('Upload to S3') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'your-aws-credentials-id', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    script {
-                        def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
-                        amazonS3.setEndpoint("s3.${env.AWS_REGION}.amazonaws.com")
+                script {
+                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
+                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
 
-                        // Assuming you have the file to upload in your workspace
-                        def fileContent = readFile(file: "${env.WORKSPACE}/${JOB_NAME}/Code/logs/${env.FILE_NAME}")
-                        def fileObject = new java.io.ByteArrayInputStream(fileContent.bytes)
+                    def fileObject = new java.io.ByteArrayInputStream(env.FILE_CONTENT.bytes)
+                    amazonS3.putObject(env.BUCKET_NAME, env.FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
 
-                        amazonS3.putObject(env.BUCKET_NAME, "${JOB_NAME}/Code/Logs/crc_controllerBuildLog.json", fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
-
-                        echo "File uploaded successfully to S3 bucket."
-                    }
+                    echo "File uploaded successfully to S3 bucket."
                 }
             }
         }
