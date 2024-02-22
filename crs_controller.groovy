@@ -1,31 +1,21 @@
 pipeline {
-    agent {
-        label 'EC2MatlabServer' // Label for Windows agent
-    }
-
+    agent any
     environment {
-        FILE_NAME = 'hello_world.txt' // Name of the file to upload
-        FILE_CONTENT = 'Hello, World!' // Content of the file
         AWS_REGION = 'eu-central-1' // Specify a valid AWS region
-        BUCKET_NAME = 'cruisecontrolsystem' // Specify your S3 bucket name
+        BUCKET_NAME = 'cruisecontrolsystem'
+        FILE_NAME = 'hello_keerthi.txt'
+        FILE_CONTENT = 'Hello World!'
     }
 
     stages {
         stage('Upload to S3') {
             steps {
                 script {
-                    def awsCredentials = com.amazonaws.auth.DefaultAWSCredentialsProviderChain.getInstance().getCredentials()
-                    def s3Client = new com.amazonaws.services.s3.AmazonS3ClientBuilder.standard()
-                            .withRegion(env.AWS_REGION)
-                            .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                            .build()
+                    def amazonS3 = new com.amazonaws.services.s3.AmazonS3Client()
+                    amazonS3.setRegion(com.amazonaws.regions.Region.getRegion(com.amazonaws.regions.Regions.fromName(env.AWS_REGION)))
 
-                    def fileContent = env.FILE_CONTENT.bytes
-                    def metadata = new com.amazonaws.services.s3.model.ObjectMetadata()
-                    metadata.setContentLength(fileContent.length)
-
-                    // Upload the file to S3
-                    s3Client.putObject(env.BUCKET_NAME, env.FILE_NAME, new ByteArrayInputStream(fileContent), metadata)
+                    def fileObject = new java.io.ByteArrayInputStream(env.FILE_CONTENT.bytes)
+                    amazonS3.putObject(env.BUCKET_NAME, env.FILE_NAME, fileObject, new com.amazonaws.services.s3.model.ObjectMetadata())
 
                     echo "File uploaded successfully to S3 bucket."
                 }
