@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build') {
             agent {
                 label 'LocalMatlabServer' // Label for Windows agent
@@ -121,7 +121,10 @@ pipeline {
 
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
-                    // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
+                    // The summary report is generated which shows results from the previous stages.
+                    // Any logs that were generated in the previous stages will be cleared after this stage
+                    matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
+
                 }
             }
             post {
@@ -156,4 +159,3 @@ pipeline {
 def matlabScript(String script) {
     bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
-
