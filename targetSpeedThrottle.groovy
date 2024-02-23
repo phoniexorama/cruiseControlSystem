@@ -52,14 +52,14 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
-                    junit './Design/TargetSpeedThrottle/pipeline/analyze/testing/TargetSpeedThrottleJUnitFormatTestResults.xml'
+                    //junit './Design/TargetSpeedThrottle/pipeline/analyze/testing/TargetSpeedThrottleJUnitFormatTestResults.xml'
                 }
             }
         }
 
         stage('Package') {
             agent {
-                label 'LocalMatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
@@ -72,26 +72,26 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
                 }
             }
         }
 
         stage('Deploy') {
             agent {
-                label 'WinLocalagent' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
-                echo "Any deployments of code can be made here"
-                echo "All artifacts of previous stage can be found here"
                 script {
+                    echo "Any deployments of code can be made here"
+                    echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
-                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/TargetSpeedThrottleArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=TargetSpeedThrottlePackage\""
+                    //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/TargetSpeedThrottleArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=TargetSpeedThrottlePackage\""
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
                 }
             }
         }
