@@ -8,8 +8,8 @@ pipeline {
         WORKSPACE_PATH = "${env.WORKSPACE}"
         PROJECT_NAME = "crs_controller"
         BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze"
-        ZIP_OUTPUT_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${env.BUILD_ZIP}"
+        ANALYZER_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\"
+        ZIP_OUTPUT_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\build"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
@@ -29,14 +29,14 @@ pipeline {
                     bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
 
                     // Set up HTTP request parameters
-                    def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
-                    def folderToUpload = "${ZIP_OUTPUT_PATH}"
+                    //def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
+                    //def folderToUpload = "${ZIP_OUTPUT_PATH}"
 
                     // Perform HTTP request to upload the file
-                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToUpload} ${buildUploadUrl}"
+                    //withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        //sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToUpload} ${buildUploadUrl}"
 
-                    }
+                    //}
 
                     // Set up HTTP request parameters
                     def uploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
