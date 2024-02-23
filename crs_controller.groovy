@@ -14,16 +14,13 @@ pipeline {
             }
             steps {
                 script {
-                    // The summary report is generated which shows results from the previous stages.
-                    // Any logs that were generated in the previous stages will be cleared after this stage
-
                     // Set up HTTP request parameters
                     def downloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
-                    def fileTodownload = "Code/logs/${env.MODEL_BUILD_LOG}"
-                    
-                    // Perform HTTP request to upload the file
+                    def fileToDownload = "Code/logs/${env.MODEL_BUILD_LOG}"
+
+                    // Perform HTTP request to download the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -u ${USERNAME}:${PASSWORD} -o ${fileTodownload} ${downloadUrl}"
+                        sh "curl -u \$USERNAME:\$PASSWORD -o ${fileToDownload} ${downloadUrl}"
                     }
 
                     echo "The model crs_controller has been checked"
@@ -37,8 +34,6 @@ pipeline {
                 }
             }
         }
-
-
     }
 }
 
