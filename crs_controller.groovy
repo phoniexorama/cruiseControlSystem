@@ -80,6 +80,10 @@ pipeline {
 
                     // Unzip the build.zip file
                     bat "\"${ZIP_PATH}\" x \"${ZIP_OUTPUT_PATH}\" -o\"${BUILD_FOLDER_PATH}\""
+
+                    // Delete the build.zip file after extraction
+                    bat "del \"${ZIP_OUTPUT_PATH}\""
+                    
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
