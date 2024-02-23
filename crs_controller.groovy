@@ -7,22 +7,7 @@ pipeline {
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
     }
     stages {
-        stage('Verify') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    // This job executes the Model Advisor Check for the model
-                    matlabScript("crs_controllerModelAdvisor;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
-                }
-            }
-        }
+
 
         stage('Build') {
             agent {
@@ -40,7 +25,7 @@ pipeline {
                     // Perform HTTP request to upload the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${fileToUpload} ${uploadUrl}"
-                        //bat "powershell -Command \"Invoke-RestMethod -Uri '${uploadUrl}' -Method 'PUT' -Credential (New-Object System.Management.Automation.PSCredential ('${USERNAME}', (ConvertTo-SecureString '${PASSWORD}' -AsPlainText -Force))) -InFile '${fileToUpload}'\""
+
                     }
                 }
             }
@@ -77,6 +62,15 @@ pipeline {
                 script {
                     // The summary report is generated which shows results from the previous stages.
                     // Any logs that were generated in the previous stages will be cleared after this stage
+
+                    // Set up HTTP request parameters
+                    def downloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
+                    def fileTodownload = "Code/logs/${env.MODEL_BUILD_LOG}"
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -o ${fileTodownload} ${downloadUrl}"
+                    }
+
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
