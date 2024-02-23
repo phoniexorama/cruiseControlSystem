@@ -2,7 +2,9 @@ pipeline {
     agent none
     environment {
         LOGS_PATH = "Code"
-        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
+        ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
+        MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
     }
     stages {
         stage('Verify') {
@@ -30,6 +32,16 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
+
+                    // Set up HTTP request parameters
+                    def uploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
+                    def fileToUpload = "Code/logs/${env.MODEL_BUILD_LOG}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${fileToUpload} ${uploadUrl}"
+                        //bat "powershell -Command \"Invoke-RestMethod -Uri '${uploadUrl}' -Method 'PUT' -Credential (New-Object System.Management.Automation.PSCredential ('${USERNAME}', (ConvertTo-SecureString '${PASSWORD}' -AsPlainText -Force))) -InFile '${fileToUpload}'\""
+                    }
                 }
             }
             post {
