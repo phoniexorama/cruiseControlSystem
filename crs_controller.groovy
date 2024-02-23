@@ -30,7 +30,7 @@ pipeline {
 
                     // Set up HTTP request parameters
                     def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
-                    def folderToUpload = "${env.ANALYZER_PATH}/${env.BUILD_ZIP}"
+                    def folderToUpload = "Design/crs_controller/pipeline/analyze/${env.BUILD_ZIP}"
 
                     // Perform HTTP request to upload the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
