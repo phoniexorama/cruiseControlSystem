@@ -78,6 +78,8 @@ pipeline {
                         bat "curl -u %USERNAME%:%PASSWORD% -o ${folderToDownload} ${buildDownloadUrl}"
                     }
 
+                    // Create target directory if it doesn't exist
+                    bat "mkdir \"${ANALYZER_PATH}\""
                     // Unzip the build.zip file
                     //bat "\"${ZIP_PATH}\" x -o\"${ANALYZER_PATH}\" \"${ZIP_OUTPUT_PATH}\""
                     bat "\"${ZIP_PATH}\" x \"${ZIP_OUTPUT_PATH}\" -o\"${ANALYZER_PATH}\""
