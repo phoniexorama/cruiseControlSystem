@@ -8,7 +8,7 @@ pipeline {
         WORKSPACE_PATH = "${env.WORKSPACE}"
         PROJECT_NAME = "crs_controller"
         BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\build"
+        ANALYZER_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\build\\"
         ZIP_OUTPUT_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
