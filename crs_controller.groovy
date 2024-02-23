@@ -5,11 +5,10 @@ pipeline {
 
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
-        WORKSPACE_PATH = "${env.WORKSPACE}"
         PROJECT_NAME = "crs_controller"
         BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze"
-        ZIP_OUTPUT_PATH = ".\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
+        ANALYZE_PATH = "${env.WORKSPACE}\\Design\\${PROJECT_NAME}\\pipeline\\analyze"
+        ZIP_OUTPUT_PATH = "${env.WORKSPACE}\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
@@ -26,7 +25,7 @@ pipeline {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
 
-                    bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
+                    bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZE_PATH}\""
 
                     // Set up HTTP request parameters
                     def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
