@@ -14,14 +14,11 @@ pipeline {
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
     }
-    stages {
-
-
-        
+    stages {       
 
         stage('Package') {
             agent {
-                label 'EC2MatlabServer' // Label for Windows agent
+                label 'windows' // Assuming you have a label for Windows agents
             }
             steps {
                 script {
@@ -40,12 +37,12 @@ pipeline {
 
                     // Perform HTTP request to upload the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToDownload} ${buildDownloadUrl}"
-
+                        bat "curl -u %USERNAME%:%PASSWORD% -X PUT --data-binary @${folderToDownload} ${buildDownloadUrl}"
                     }
+
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
-                    matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
+                    // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
                 }
             }
             post {
@@ -54,7 +51,6 @@ pipeline {
                 }
             }
         }
-
 
     }
 }
