@@ -20,7 +20,7 @@ pipeline {
 
                     // Perform HTTP request to download the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -u \$USERNAME:\$PASSWORD -o ${fileToDownload} ${downloadUrl}"
+                        bat "curl -u %USERNAME%:%PASSWORD% -o ${fileToDownload} ${downloadUrl}"
                     }
 
                     echo "The model crs_controller has been checked"
