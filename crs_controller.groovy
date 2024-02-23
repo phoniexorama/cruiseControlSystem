@@ -8,7 +8,23 @@ pipeline {
     }
     stages {
 
-
+        stage('Verify') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
+            steps {
+                script {
+                    // This job executes the Model Advisor Check for the model
+                    matlabScript("crs_controllerModelAdvisor;")
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
+                }
+            }
+        }
+        
         stage('Build') {
             agent {
                 label 'LocalMatlabServer' // Label for Windows agent
