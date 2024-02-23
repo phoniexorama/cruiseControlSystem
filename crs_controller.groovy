@@ -18,7 +18,7 @@ pipeline {
 
         stage('Package') {
             agent {
-                label 'windows' // Assuming you have a label for Windows agents
+                label 'EC2MatlabServer' // Assuming you have a label for Windows agents
             }
             steps {
                 script {
