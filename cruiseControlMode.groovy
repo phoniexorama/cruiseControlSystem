@@ -72,7 +72,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
+                    archiveArtifacts artifacts: "Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
                 }
             }
         }
