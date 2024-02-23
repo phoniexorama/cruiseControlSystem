@@ -59,7 +59,7 @@ pipeline {
 
         stage('Package') {
             agent {
-                label 'LocalMatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
@@ -79,7 +79,7 @@ pipeline {
 
         stage('Deploy') {
             agent {
-                label 'WinLocalagent' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {         
                 script {
