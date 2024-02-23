@@ -6,12 +6,12 @@ pipeline {
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
         BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = "Design\\crs_controller\\pipeline\\analyze\\"
+        ANALYZER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\"
         ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
-        BUILD_FOLDER_PATH = "Design\\crs_controller\\pipeline\\analyze\\build\\"
+        BUILD_FOLDER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\build\\"
     }
     stages {
 
@@ -79,7 +79,8 @@ pipeline {
                     }
 
                     // Unzip the build.zip file
-                    bat "\"${ZIP_PATH}\" x -o\"${ANALYZER_PATH}\" \"${ZIP_OUTPUT_PATH}\""
+                    //bat "\"${ZIP_PATH}\" x -o\"${ANALYZER_PATH}\" \"${ZIP_OUTPUT_PATH}\""
+                    bat "\"${ZIP_PATH}\" x \"${ZIP_OUTPUT_PATH}\" -o\"${ANALYZER_PATH}\""
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
