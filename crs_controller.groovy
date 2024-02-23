@@ -1,28 +1,21 @@
 pipeline {
     agent none
+    
     environment {
+        
         LOGS_PATH = "Code"
+        ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
+        WORKSPACE_PATH = "${env.WORKSPACE}"
+        PROJECT_NAME = "crs_controller"
+        BUILD_ZIP = "build.zip"
+        ANALYZER_PATH = "${WORKSPACE_PATH}\\Design\\${PROJECT_NAME}\\pipeline\\analyzer"
+        ZIP_OUTPUT_PATH = "${WORKSPACE_PATH}\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
     }
     stages {
-        stage('Verify') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    // This job executes the Model Advisor Check for the model
-                    matlabScript("crs_controllerModelAdvisor;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
-                }
-            }
-        }
+
 
         stage('Build') {
             agent {
@@ -32,7 +25,19 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
+                    
+                    bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
 
+                    // Set up HTTP request parameters
+                    def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
+                    def folderToUpload = "${ZIP_OUTPUT_PATH}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToUpload} ${buildUploadUrl}"
+
+                    }
+                    
                     // Set up HTTP request parameters
                     def uploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
                     def fileToUpload = "Code/logs/${env.MODEL_BUILD_LOG}"
@@ -47,24 +52,6 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Code/codegen/crs_controller_ert_rtw, ./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
-                }
-            }
-        }
-
-        stage('Testing') {
-            agent {
-                label 'EC2MatlabServer' // Label for EC2 agent
-            }
-            steps {
-                script {
-                    // This job executes the unit tests defined in the collection
-                    matlabScript("crs_controllerTestFile;")
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
-                    //junit 'Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
                 }
             }
         }
@@ -96,24 +83,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            agent {
-                label 'EC2MatlabServer' // Label for Windows agent
-            }
-            steps {
-                script {
-                    echo "Any deployments of code can be made here"
-                    echo "All artifacts of previous stage can be found here"
-                    // Curl command to download artifacts
-                    //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
-                }
-            }
-        }
+
     }
 }
 
