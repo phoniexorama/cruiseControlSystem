@@ -14,7 +14,7 @@ pipeline {
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
     }
-    stages {       
+    stages {
 
         stage('Package') {
             agent {
@@ -37,7 +37,7 @@ pipeline {
 
                     // Perform HTTP request to upload the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        bat "curl -u %USERNAME%:%PASSWORD% -X PUT --data-binary @${folderToDownload} ${buildDownloadUrl}"
+                        bat "curl -u %USERNAME%:%PASSWORD% -o ${folderToDownload} ${buildDownloadUrl}"
                     }
 
                     echo "The model crs_controller has been checked"
@@ -52,10 +52,11 @@ pipeline {
             }
         }
 
+
+
     }
 }
 
 def matlabScript(String script) {
     bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
-
