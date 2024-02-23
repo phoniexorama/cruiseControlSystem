@@ -1,15 +1,15 @@
 pipeline {
     agent none
-    
+
     environment {
-        
+
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
         WORKSPACE_PATH = "${env.WORKSPACE}"
         PROJECT_NAME = "crs_controller"
         BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = "${WORKSPACE_PATH}\\Design\\${PROJECT_NAME}\\pipeline\\analyzer"
-        ZIP_OUTPUT_PATH = "${WORKSPACE_PATH}\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
+        ANALYZER_PATH = "${env.WORKSPACE}\\Design\\${PROJECT_NAME}\\pipeline\\analyzer"
+        ZIP_OUTPUT_PATH = "${env.WORKSPACE}\\Design\\${PROJECT_NAME}\\pipeline\\analyze\\${BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
@@ -25,18 +25,7 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
-                    // Print Jenkins pipeline name
-                    echo "Jenkins Pipeline Name: ${env.JOB_NAME}"
 
-                    // Print Jenkins project name
-                    echo "Jenkins Project Name: ${env.JOB_BASE_NAME}"
-
-                    // Print Jenkins workspace path
-                    echo "Jenkins Workspace Path: ${env.WORKSPACE}"
-                    echo "WORKSPACE_PATH: ${WORKSPACE_PATH}"
-                    echo "ZIP_OUTPUT_PATH: ${ZIP_OUTPUT_PATH}"
-                    echo "ANALYZER_PATH: ${ANALYZER_PATH}"
-                    
                     bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
 
                     // Set up HTTP request parameters
@@ -48,7 +37,7 @@ pipeline {
                         sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToUpload} ${buildUploadUrl}"
 
                     }
-                    
+
                     // Set up HTTP request parameters
                     def uploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
                     def fileToUpload = "Code/logs/${env.MODEL_BUILD_LOG}"
@@ -101,3 +90,4 @@ pipeline {
 def matlabScript(String script) {
     bat "matlab -nodesktop -batch \"openProject('CruiseControlSystem.prj'); ${script}\""
 }
+
