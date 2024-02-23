@@ -25,6 +25,9 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
+                    echo "WORKSPACE_PATH: ${WORKSPACE_PATH}"
+                    echo "ZIP_OUTPUT_PATH: ${ZIP_OUTPUT_PATH}"
+                    echo "ANALYZER_PATH: ${ANALYZER_PATH}"
                     
                     bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
 
