@@ -2,7 +2,14 @@ pipeline {
     agent none
     environment {
         LOGS_PATH = "Code"
-        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GITLAB_USER_LOGIN}/Downloads"
+        ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
+        BUILD_ZIP = "build.zip"
+        ANALYZER_PATH = ".\\Design\\CruiseControlMode\\pipeline\\analyze\\"
+        ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
+        ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        TARGET_PATH = 'cruisecontrolsystem/CruiseControlMode/'
+        MODEL_BUILD_LOG = 'CruiseControlModeBuildLog.json'
+        BUILD_FOLDER_PATH = ".\\Design\\CruiseControlMode\\pipeline\\analyze\\build\\"
     }
     stages {
         stage('Verify') {
@@ -30,6 +37,28 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("CruiseControlModeBuild;")
+
+                    //bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${ANALYZER_PATH}\""
+                    bat "\"${ZIP_PATH}\" a -tzip \"${ZIP_OUTPUT_PATH}\" \"${BUILD_FOLDER_PATH}\\*\""
+
+                    // Set up HTTP request parameters
+                    def buildUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
+                    def folderToUpload = "Design/CruiseControlMode/pipeline/analyze/${env.BUILD_ZIP}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${folderToUpload} ${buildUploadUrl}"
+                    }
+
+                    // Set up HTTP request parameters
+                    def uploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
+                    def fileToUpload = "Code/logs/${env.MODEL_BUILD_LOG}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${fileToUpload} ${uploadUrl}"
+
+                    }
                 }
             }
             post {
@@ -63,6 +92,30 @@ pipeline {
             }
             steps {
                 script {
+                    // Set up HTTP request parameters
+                    def downloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
+                    def fileToDownload = "Code/logs/${env.MODEL_BUILD_LOG}"
+
+                    // Perform HTTP request to download the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        bat "curl -u %USERNAME%:%PASSWORD% -o ${fileToDownload} ${downloadUrl}"
+                    }
+
+                    // Set up HTTP request parameters
+                    def buildDownloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
+                    def folderToDownload = "${ZIP_OUTPUT_PATH}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        bat "curl -u %USERNAME%:%PASSWORD% -o ${folderToDownload} ${buildDownloadUrl}"
+                    }
+
+                    // Unzip the build.zip file
+                    bat "\"${ZIP_PATH}\" x \"${ZIP_OUTPUT_PATH}\" -o\"${BUILD_FOLDER_PATH}\""
+
+                    // Delete the build.zip file after extraction
+                    bat "del \"${ZIP_OUTPUT_PATH}\""
+
                     // The summary report is generated which shows results from the previous stages.
                     // Any logs that were generated in the previous stages will be cleared after this stage
                     echo "The model CruiseControlMode has been checked"
@@ -81,7 +134,7 @@ pipeline {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
             }
-            steps {         
+            steps {
                 script {
                     echo "Any deployments of code can be made here"
                     echo "All artifacts of previous stage can be found here"
