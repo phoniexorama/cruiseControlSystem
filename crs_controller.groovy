@@ -25,6 +25,14 @@ pipeline {
                 script {
                     // This job performs code generation on the model
                     matlabScript("crs_controllerBuild;")
+                    // Print Jenkins pipeline name
+                    echo "Jenkins Pipeline Name: ${env.JOB_NAME}"
+
+                    // Print Jenkins project name
+                    echo "Jenkins Project Name: ${env.JOB_BASE_NAME}"
+
+                    // Print Jenkins workspace path
+                    echo "Jenkins Workspace Path: ${env.WORKSPACE}"
                     echo "WORKSPACE_PATH: ${WORKSPACE_PATH}"
                     echo "ZIP_OUTPUT_PATH: ${ZIP_OUTPUT_PATH}"
                     echo "ANALYZER_PATH: ${ANALYZER_PATH}"
