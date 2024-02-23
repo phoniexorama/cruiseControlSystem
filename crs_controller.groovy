@@ -15,7 +15,6 @@ pipeline {
     }
     stages {
 
-
         stage('Build') {
             agent {
                 label 'LocalMatlabServer' // Label for Windows agent
@@ -79,6 +78,8 @@ pipeline {
                         bat "curl -u %USERNAME%:%PASSWORD% -o ${folderToDownload} ${buildDownloadUrl}"
                     }
 
+                    // Unzip the build.zip file
+                    bat "\"${ZIP_PATH}\" x -o\"${ANALYZER_PATH}\" \"${ZIP_OUTPUT_PATH}\""
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
@@ -90,8 +91,6 @@ pipeline {
                 }
             }
         }
-
-
 
     }
 }
