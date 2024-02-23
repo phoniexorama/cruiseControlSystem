@@ -15,6 +15,23 @@ pipeline {
     }
     stages {
 
+        stage('Verify') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
+            steps {
+                script {
+                    // This job executes the Model Advisor Check for the model
+                    matlabScript("crs_controllerModelAdvisor;")
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "$LOGS_PATH/logs/, ./Design/crs_controller/pipeline/analyze/**/*"
+                }
+            }
+        }
+        
         stage('Build') {
             agent {
                 label 'LocalMatlabServer' // Label for Windows agent
@@ -54,6 +71,24 @@ pipeline {
             }
         }
 
+        stage('Testing') {
+            agent {
+                label 'EC2MatlabServer' // Label for EC2 agent
+            }
+            steps {
+                script {
+                    // This job executes the unit tests defined in the collection
+                    matlabScript("crs_controllerTestFile;")
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
+                    //junit 'Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
+                }
+            }
+        }
+
         stage('Package') {
             agent {
                 label 'EC2MatlabServer' // Assuming you have a label for Windows agents
@@ -83,10 +118,29 @@ pipeline {
 
                     // Delete the build.zip file after extraction
                     bat "del \"${ZIP_OUTPUT_PATH}\""
-                    
+
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // You'll need to ensure that 'matlabScript' function is compatible with Windows or rewrite it accordingly
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
+            steps {
+                script {
+                    echo "Any deployments of code can be made here"
+                    echo "All artifacts of previous stage can be found here"
+                    // Curl command to download artifacts
+                    //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
                 }
             }
             post {
