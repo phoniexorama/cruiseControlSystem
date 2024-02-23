@@ -52,14 +52,14 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: "./Design/DriverSwRequestTest/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/DriverSwRequestTest_ert_rtw"
-                    junit './Design/DriverSwRequestTest/pipeline/analyze/testing/DriverSwRequestTestJUnitFormatTestResults.xml'
+                    //junit './Design/DriverSwRequestTest/pipeline/analyze/testing/DriverSwRequestTestJUnitFormatTestResults.xml'
                 }
             }
         }
 
         stage('Package') {
             agent {
-                label 'LocalMatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
                 script {
@@ -72,26 +72,26 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
+                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
                 }
             }
         }
 
         stage('Deploy') {
             agent {
-                label 'WinLocalagent' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for Windows agent
             }
             steps {
-                echo "Any deployments of code can be made here"
-                echo "All artifacts of previous stage can be found here"
                 script {
+                    echo "Any deployments of code can be made here"
+                    echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
-                    bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/DriverSwRequestArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=DriverSwRequestPackage\""
+                   // bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/DriverSwRequestArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=DriverSwRequestPackage\""
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
+                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
                 }
             }
         }
