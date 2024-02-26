@@ -6,7 +6,7 @@ pipeline {
         BUILD_ZIP = "build.zip"
         ANALYZER_PATH = ".\\Design\\TargetSpeedThrottle\\pipeline\\analyze\\"
         ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
-        ARTIFACTORY_URL = 'http://ec2-35-158-218-138.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        ARTIFACTORY_URL = 'http://ec2-18-184-131-20.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/TargetSpeedThrottle/'
         MODEL_BUILD_LOG = 'TargetSpeedThrottleBuildLog.json'
         BUILD_FOLDER_PATH = ".\\Design\\TargetSpeedThrottle\\pipeline\\analyze\\build\\"
