@@ -15,8 +15,8 @@ pipeline {
         ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
 
         CRS_CONTROLLER_ERT_RTW_ZIP = "crs_controller_ert_rtw.zip"
-        CODE_GEN_FOLDER_PATH = "Code\\codegen\\"
-        CRS_CONTROLLER_ERT_RTW_PATH = "Code\\codegen\\crs_controller_ert_rtw\\"
+        CODE_GEN_FOLDER_PATH = ".\\Code\\codegen\\"
+        CRS_CONTROLLER_ERT_RTW_PATH = ".\\Code\\codegen\\crs_controller_ert_rtw\\"
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
     stages {
@@ -42,7 +42,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh "curl -u ${USERNAME}:${PASSWORD} -T ${ertRtwFolderToUpload} ${ertRtwUploadUrl}"
                     }
-                
+
                 }
             }
             post {
