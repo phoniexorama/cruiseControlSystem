@@ -2,7 +2,6 @@ pipeline {
     agent none
 
     environment {
-
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
         ARTIFACTORY_URL = 'http://ec2-35-159-25-238.eu-central-1.compute.amazonaws.com:8081/artifactory'
@@ -19,6 +18,7 @@ pipeline {
         CRS_CONTROLLER_ERT_RTW_PATH = ".\\Code\\codegen\\crs_controller_ert_rtw\\"
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
+
     stages {
 
         stage('Verify') {
@@ -30,17 +30,16 @@ pipeline {
                     // This job executes the Model Advisor Check for the model
                     matlabScript("crs_controllerModelAdvisor;")
 
-
                     // Zip the contents of crs_controller_ert_rtw into crs_controller_ert_rtw.zip
                     bat "\"${ZIP_PATH}\" a -tzip \"${CODE_GEN_FOLDER_PATH}${CRS_CONTROLLER_ERT_RTW_ZIP}\" \"${CRS_CONTROLLER_ERT_RTW_PATH}*\""
 
                     // Set up HTTP request parameters for the upload
-                    def ertRtwUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${CRS_CONTROLLER_ERT_RTW_ZIP}"
-                    def ertRtwFolderToUpload = "${CODE_GEN_FOLDER_PATH}${CRS_CONTROLLER_ERT_RTW_ZIP}"
+                    def ertRtwUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
+                    def ertRtwFolderToUpload = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
 
                     // Perform HTTP request to upload the zipped folder
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -u ${USERNAME}:${PASSWORD} -T ${ertRtwFolderToUpload} ${ertRtwUploadUrl}"
+                        bat "curl -u ${USERNAME}:${PASSWORD} -T ${ertRtwFolderToUpload} ${ertRtwUploadUrl}"
                     }
 
                 }
