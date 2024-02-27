@@ -3,7 +3,7 @@ pipeline {
     environment {
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
-        ARTIFACTORY_URL = 'http://ec2-35-159-25-238.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        ARTIFACTORY_URL = 'http://ec2-18-184-131-20.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/DriverSwRequest/'
         MODEL_BUILD_LOG = 'DriverSwRequestBuildLog.json'
 
@@ -80,7 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Code/codegen/DriverSwRequest_ert_rtw, ./Design/DriverSwRequest/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/DriverSwRequest_ert_rtw/**/*, ./Design/DriverSwRequest/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
         }
@@ -97,7 +97,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/DriverSwRequestTest/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/DriverSwRequestTest_ert_rtw"
+                    archiveArtifacts artifacts: "./Design/DriverSwRequestTest/pipeline/analyze/**/*, $LOGS_PATH/logs/, $LOGS_PATH/codegen/DriverSwRequestTest_ert_rtw/**/*"
                     //junit './Design/DriverSwRequestTest/pipeline/analyze/testing/DriverSwRequestTestJUnitFormatTestResults.xml'
                 }
             }
@@ -156,7 +156,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
+                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, $LOGS_PATH/codegen/DriverSwRequest_ert_rtw/**/*"
                 }
             }
         }
@@ -171,11 +171,28 @@ pipeline {
                     echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     // bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/DriverSwRequestArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=DriverSwRequestPackage\""
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/DriverSwRequest/pipeline/analyze/verify/',
+                            reportFiles: 'DriverSwRequestModelAdvisorReport.html',
+                            reportName: 'Model Advisor Report'
+                    ])
+
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/DriverSwRequest/pipeline/analyze/package/',
+                            reportFiles: 'DriverSwRequestSummaryReport.html',
+                            reportName: 'Summary Report'
+                    ])
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, ./Code/codegen/DriverSwRequest_ert_rtw"
+                    archiveArtifacts artifacts: "Design/DriverSwRequest/pipeline/analyze/**/*, $LOGS_PATH/codegen/DriverSwRequest_ert_rtw/**/*"
                 }
             }
         }
