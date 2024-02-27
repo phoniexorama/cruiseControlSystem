@@ -176,6 +176,23 @@ pipeline {
                     echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/crs_controller/pipeline/analyze/verify/',
+                            reportFiles: 'crs_controllerModelAdvisorReport.html',
+                            reportName: 'Model Advisor Report'
+                    ])
+
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/crs_controller/pipeline/analyze/package/',
+                            reportFiles: 'crs_controllerSummaryReport.html',
+                            reportName: 'Summary Report'
+                    ])
                 }
             }
             post {
