@@ -21,8 +21,6 @@ pipeline {
     }
     stages {
 
-
-
         stage('Build') {
             agent {
                 label 'LocalMatlabServer' // Label for Windows agent
@@ -68,9 +66,16 @@ pipeline {
             }
             post {
                 always {
+                    script {
+                        echo "Archiving artifacts..."
+                        echo "Codegen artifacts: ${env.CODE_GEN_FOLDER_PATH}"
+                        echo "Analyzer artifacts: ${env.ANALYZER_PATH}"
+                        echo "Logs artifacts: ${LOGS_PATH}"
+                    }
                     archiveArtifacts artifacts: "Code/codegen/crs_controller_ert_rtw, Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
+
         }
 
 
