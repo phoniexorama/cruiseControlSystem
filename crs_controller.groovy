@@ -180,7 +180,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, Code/codegen/crs_controller_ert_rtw"
                 }
             }
         }
