@@ -15,7 +15,6 @@ pipeline {
 
         CRS_CONTROLLER_ERT_RTW_ZIP = "crs_controller_ert_rtw.zip"
         CODE_GEN_FOLDER_PATH = "Code\\codegen\\"
-        CRS_CONTROLLER_ERT_RTW_PATH = "Code\\codegen\\crs_controller_ert_rtw\\"
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
     stages {
