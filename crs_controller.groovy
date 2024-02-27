@@ -20,37 +20,14 @@ pipeline {
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
     stages {
-        
+
         stage('Package') {
             agent {
                 label 'EC2MatlabServer' // Assuming you have a label for Windows agents
             }
             steps {
                 script {
-                    // Set up HTTP request parameters
-                    def downloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.MODEL_BUILD_LOG}"
-                    def fileToDownload = "Code/logs/${env.MODEL_BUILD_LOG}"
-
-                    // Perform HTTP request to download the file
-                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        bat "curl -u %USERNAME%:%PASSWORD% -o ${fileToDownload} ${downloadUrl}"
-                    }
-
-                    // Set up HTTP request parameters
-                    def buildDownloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.BUILD_ZIP}"
-                    def folderToDownload = "${ZIP_OUTPUT_PATH}"
-
-                    // Perform HTTP request to upload the file
-                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        bat "curl -u %USERNAME%:%PASSWORD% -o ${folderToDownload} ${buildDownloadUrl}"
-                    }
-
-                    // Unzip the build.zip file
-                    bat "\"${ZIP_PATH}\" x \"${ZIP_OUTPUT_PATH}\" -o\"${BUILD_FOLDER_PATH}\""
-
-                    // Delete the build.zip file after extraction
-                    bat "del \"${ZIP_OUTPUT_PATH}\""
-
+                    
                     // Set up HTTP request parameters
                     def codeGenDownloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
                     def codeGenFolderToDownload = "${CODE_GEN_OUTPUT_PATH}"
@@ -80,7 +57,7 @@ pipeline {
                 }
             }
         }
-        
+
 
     }
 }
