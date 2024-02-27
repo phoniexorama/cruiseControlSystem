@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'WinLocalagent' //label for windows server
-    }
+    agent any
 
     environment {
         LOGS_PATH = "./Code"

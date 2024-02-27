@@ -5,13 +5,19 @@ pipeline {
 
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
-        BUILD_ZIP = "build.zip"
-        ANALYZER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\"
-        ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
         ARTIFACTORY_URL = 'http://ec2-35-159-25-238.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
+
+        BUILD_ZIP = "build.zip"
+        ANALYZER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\"
+        ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
         BUILD_FOLDER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\build\\"
+
+        CRS_CONTROLLER_ERT_RTW_ZIP = "crs_controller_ert_rtw.zip"
+        CODE_GEN_FOLDER_PATH = ".\\Code\\codegen\\"
+        CRS_CONTROLLER_ERT_RTW_PATH = ".\\Code\\codegen\\crs_controller_ert_rtw\\"
+        CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
     stages {
 
@@ -60,15 +66,27 @@ pipeline {
                     // Perform HTTP request to upload the file
                     withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh "curl -u ${USERNAME}:${PASSWORD} -X PUT --data-binary @${fileToUpload} ${uploadUrl}"
+                    }
 
+                    // Zip the contents of crs_controller_ert_rtw into crs_controller_ert_rtw.zip
+                    bat "\"${ZIP_PATH}\" a -tzip \"${CODE_GEN_FOLDER_PATH}${CRS_CONTROLLER_ERT_RTW_ZIP}\" \"${CRS_CONTROLLER_ERT_RTW_PATH}*\""
+
+                    // Set up HTTP request parameters for the upload
+                    def ertRtwUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
+                    def ertRtwFolderToUpload = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
+
+                    // Perform HTTP request to upload the zipped folder
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        bat "curl -u ${USERNAME}:${PASSWORD} -T ${ertRtwFolderToUpload} ${ertRtwUploadUrl}"
                     }
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Code/codegen/crs_controller_ert_rtw, ./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/crs_controller_ert_rtw/**/*, Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
+
         }
 
         stage('Testing') {
@@ -83,7 +101,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/crs_controller_ert_rtw"
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/, $LOGS_PATH/codegen/crs_controller_ert_rtw/**/*"
                     //junit 'Design/crs_controller/pipeline/analyze/testing/crs_controllerJUnitFormatTestResults.xml'
                 }
             }
@@ -119,6 +137,21 @@ pipeline {
                     // Delete the build.zip file after extraction
                     bat "del \"${ZIP_OUTPUT_PATH}\""
 
+                    // Set up HTTP request parameters
+                    def codeGenDownloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
+                    def codeGenFolderToDownload = "${CODE_GEN_OUTPUT_PATH}"
+
+                    // Perform HTTP request to upload the file
+                    withCredentials([usernamePassword(credentialsId: 'artifactory_credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        bat "curl -u %USERNAME%:%PASSWORD% -o ${codeGenFolderToDownload} ${codeGenDownloadUrl}"
+                    }
+
+                    // Unzip the build.zip file
+                    bat "\"${ZIP_PATH}\" x \"${CODE_GEN_OUTPUT_PATH}\" -o\"${CRS_CONTROLLER_ERT_RTW_PATH}\""
+
+                    // Delete the build.zip file after extraction
+                    bat "del \"${CODE_GEN_OUTPUT_PATH}\""
+
                     echo "The model crs_controller has been checked"
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // The summary report is generated which shows results from the previous stages.
@@ -129,7 +162,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/codegen/crs_controller_ert_rtw/**/*"
                 }
             }
         }
@@ -144,11 +177,28 @@ pipeline {
                     echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/Crs_ControllerArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=Crs_ControllerPackage\""
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/crs_controller/pipeline/analyze/verify/',
+                            reportFiles: 'crs_controllerModelAdvisorReport.html',
+                            reportName: 'Model Advisor Report'
+                    ])
+
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/crs_controller/pipeline/analyze/package/',
+                            reportFiles: 'crs_controllerSummaryReport.html',
+                            reportName: 'Summary Report'
+                    ])
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, ./Code/codegen/crs_controller_ert_rtw"
+                    archiveArtifacts artifacts: "Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/Code/codegen/crs_controller_ert_rtw/**/*"
                 }
             }
         }
