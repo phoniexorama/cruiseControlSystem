@@ -72,7 +72,7 @@ pipeline {
                         echo "Analyzer artifacts: ${env.ANALYZER_PATH}"
                         echo "Logs artifacts: ${LOGS_PATH}"
                     }
-                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/crs_controller_ert_rtw, Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/crs_controller_ert_rtw/**/*, Design/crs_controller/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
 
