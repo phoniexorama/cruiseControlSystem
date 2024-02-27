@@ -2,7 +2,6 @@ pipeline {
     agent none
 
     environment {
-
         LOGS_PATH = "Code"
         ZIP_PATH = "\"C:\\Program Files\\7-Zip\\7z.exe\"" // Enclose the path in double quotes
         BUILD_ZIP = "build.zip"
@@ -13,11 +12,11 @@ pipeline {
         BUILD_FOLDER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\build\\"
         CRS_CONTROLLER_ERT_RTW_ZIP = "crs_controller_ert_rtw.zip"
         CODE_GEN_FOLDER_PATH = "Code\\codegen\\"
-        CRS_CONTROLLER_ERT_RTW_PATH = "Code\\codegen\\crs_controller_ert_rtw\\"
+        CRS_CONTROLLER_ERT_RTW_PATH = "Code\\codegen\\crs_controller_ert_rtw\\*.*" // Include all files in the directory
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
-    stages {
 
+    stages {
         stage('Verify') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
@@ -28,7 +27,7 @@ pipeline {
                     matlabScript("crs_controllerModelAdvisor;")
 
                     // Zip the contents of crs_controller_ert_rtw into crs_controller_ert_rtw.zip
-                    bat "${ZIP_PATH} a -tzip ${CODE_GEN_OUTPUT_PATH} ${CRS_CONTROLLER_ERT_RTW_PATH}\\*"
+                    bat "${ZIP_PATH} a -tzip ${CODE_GEN_OUTPUT_PATH} ${CRS_CONTROLLER_ERT_RTW_PATH}"
 
                     // Set up HTTP request parameters for the upload
                     def ertRtwUploadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
