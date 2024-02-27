@@ -1,7 +1,8 @@
 pipeline {
-    agent any // You might want to specify the appropriate agent here
+    agent none
 
     environment {
+
         LOGS_PATH = "Code"
         ZIP_PATH = "\"C:\\Program Files\\7-Zip\\7z.exe\"" // Enclose the path in double quotes
         BUILD_ZIP = "build.zip"
@@ -15,9 +16,12 @@ pipeline {
         CRS_CONTROLLER_ERT_RTW_PATH = "Code\\codegen\\crs_controller_ert_rtw\\"
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
-
     stages {
+
         stage('Verify') {
+            agent {
+                label 'EC2MatlabServer' // Label for Windows agent
+            }
             steps {
                 script {
                     // This job executes the Model Advisor Check for the model
