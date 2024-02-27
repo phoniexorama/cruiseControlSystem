@@ -80,7 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Code/codegen/CruiseControlMode_ert_rtw, ./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/CruiseControlMode_ert_rtw/**/*, ./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
         }
@@ -97,7 +97,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/CruiseControlMode_ert_rtw"
+                    archiveArtifacts artifacts: "./Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/logs/, $LOGS_PATH/codegen/CruiseControlMode_ert_rtw/**/*"
                     //junit './Design/CruiseControlMode/pipeline/analyze/testing/CruiseControlModeJUnitFormatTestResults.xml'
                 }
             }
@@ -156,7 +156,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
+                    archiveArtifacts artifacts: "Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/codegen/CruiseControlMode_ert_rtw/**/*"
                 }
             }
         }
@@ -171,11 +171,28 @@ pipeline {
                     echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/CruiseControlModeArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=CruiseControlModePackage\""
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/CruiseControlMode/pipeline/analyze/verify/',
+                            reportFiles: 'CruiseControlModeModelAdvisorReport.html',
+                            reportName: 'Model Advisor Report'
+                    ])
+
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/CruiseControlMode/pipeline/analyze/package/',
+                            reportFiles: 'CruiseControlModeSummaryReport.html',
+                            reportName: 'Summary Report'
+                    ])
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/CruiseControlMode/pipeline/analyze/**/*, ./Code/codegen/CruiseControlMode_ert_rtw"
+                    archiveArtifacts artifacts: "Design/CruiseControlMode/pipeline/analyze/**/*, $LOGS_PATH/codegen/CruiseControlMode_ert_rtw/**/*"
                 }
             }
         }
