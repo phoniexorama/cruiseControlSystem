@@ -3,7 +3,7 @@ pipeline {
     environment {
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
-        ARTIFACTORY_URL = 'http://ec2-35-159-25-238.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        ARTIFACTORY_URL = 'http://ec2-18-184-131-20.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/TargetSpeedThrottle/'
         MODEL_BUILD_LOG = 'TargetSpeedThrottleBuildLog.json'
 
@@ -80,7 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Code/codegen/TargetSpeedThrottle_ert_rtw, ./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/"
+                    archiveArtifacts artifacts: "$LOGS_PATH/codegen/TargetSpeedThrottle_ert_rtw/**/*, ./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/"
                 }
             }
         }
@@ -97,7 +97,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "./Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/logs/, $LOGS_PATH/codegen/TargetSpeedThrottle_ert_rtw/**/*"
                     //junit './Design/TargetSpeedThrottle/pipeline/analyze/testing/TargetSpeedThrottleJUnitFormatTestResults.xml'
                 }
             }
@@ -156,7 +156,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/codegen/TargetSpeedThrottle_ert_rtw/**/*"
                 }
             }
         }
@@ -171,11 +171,28 @@ pipeline {
                     echo "All artifacts of previous stage can be found here"
                     // Curl command to download artifacts
                     //bat "curl.exe --location --output \"$ARTIFACTS_DOWNLOAD_PATH/TargetSpeedThrottleArtifacts.zip\" --header \"PRIVATE-TOKEN: %CIPROJECTTOKEN%\" \"%CI_SERVER_URL%/api/v4/projects/%CI_PROJECT_ID%/jobs/artifacts/%CI_COMMIT_BRANCH%/download?job=TargetSpeedThrottlePackage\""
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/TargetSpeedThrottle/pipeline/analyze/verify/',
+                            reportFiles: 'TargetSpeedThrottleModelAdvisorReport.html',
+                            reportName: 'Model Advisor Report'
+                    ])
+
+                    publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'Design/TargetSpeedThrottle/pipeline/analyze/package/',
+                            reportFiles: 'TargetSpeedThrottleSummaryReport.html',
+                            reportName: 'Summary Report'
+                    ])
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, ./Code/codegen/TargetSpeedThrottle_ert_rtw"
+                    archiveArtifacts artifacts: "Design/TargetSpeedThrottle/pipeline/analyze/**/*, $LOGS_PATH/codegen/TargetSpeedThrottle_ert_rtw/**/*"
                 }
             }
         }
