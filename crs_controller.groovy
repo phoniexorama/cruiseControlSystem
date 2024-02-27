@@ -8,7 +8,7 @@ pipeline {
         BUILD_ZIP = "build.zip"
         ANALYZER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\"
         ZIP_OUTPUT_PATH = "${env.ANALYZER_PATH}${env.BUILD_ZIP}"
-        ARTIFACTORY_URL = 'http://ec2-18-184-131-20.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        ARTIFACTORY_URL = 'http://ec2-35-159-25-238.eu-central-1.compute.amazonaws.com:8081/artifactory'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
         BUILD_FOLDER_PATH = ".\\Design\\crs_controller\\pipeline\\analyze\\build\\"
