@@ -27,7 +27,7 @@ pipeline {
             }
             steps {
                 script {
-                    
+
                     // Set up HTTP request parameters
                     def codeGenDownloadUrl = "${env.ARTIFACTORY_URL}/${env.TARGET_PATH}/${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
                     def codeGenFolderToDownload = "${CODE_GEN_OUTPUT_PATH}"
@@ -47,7 +47,6 @@ pipeline {
                     echo "There is a Summary report generated crs_controllerReport.html"
                     // The summary report is generated which shows results from the previous stages.
                     // Any logs that were generated in the previous stages will be cleared after this stage
-                    matlabScript("generateXMLFromLogs('crs_controller'); generateHTMLReport('crs_controller'); deleteLogs;")
 
                 }
             }
