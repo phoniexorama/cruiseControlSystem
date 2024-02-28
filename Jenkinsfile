@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         LOGS_PATH = "./Code"
-        ARTIFACTS_DOWNLOAD_PATH = "C:/Users/${env.GIT_USER_LOGIN}/Downloads"
     }
 
     stages {
