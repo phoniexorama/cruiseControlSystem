@@ -20,7 +20,7 @@ pipeline {
     stages {
         stage('Verify') {
             agent {
-                label 'EC2MatlabServer' // Label for Windows agent
+                label 'EC2MatlabServer' // Label for EC2 Windows agent
             }
             steps {
                 script {
