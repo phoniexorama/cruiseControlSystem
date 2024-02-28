@@ -1,5 +1,5 @@
 pipeline {
-    agent any //future use to define the label
+    agent any //future use to define the labels
 
     environment {
         LOGS_PATH = "./Code"
