@@ -19,7 +19,7 @@ pipeline {
                     buildJobIfFilesChanged('targetSpeedThrottle', ['Design/TargetSpeedThrottle/**/*', 'targetSpeedThrottle.groovy', 'Jenkinsfile', 'tools/**/*'])
 
                     // Define child pipeline for crs_controller if specific files are changed
-                    buildJobIfFilesChanged('crs_controller_pipeline', ['Design/crs_controller/**/*', 'crs_controller.groovy', 'Jenkinsfile', 'tools/**/*'])
+                    buildJobIfFilesChanged('crs_controller', ['Design/crs_controller/**/*', 'crs_controller.groovy', 'Jenkinsfile', 'tools/**/*'])
                 }
             }
         }
