@@ -1,5 +1,5 @@
 pipeline {
-    agent any // use it
+    agent any
 
     environment {
         LOGS_PATH = "./Code"
