@@ -1,7 +1,7 @@
 pipeline {
 
     agent none
-    
+
     environment {
 
         LOGS_PATH = "Code"
@@ -21,19 +21,19 @@ pipeline {
         CODE_GEN_OUTPUT_PATH = "${env.CODE_GEN_FOLDER_PATH}${env.CRS_CONTROLLER_ERT_RTW_ZIP}"
     }
     stages {
-        when {
-            // Trigger the pipeline only if changes are detected in specific files or directories
-            anyOf {
-                changeset "Design/DriverSwRequest/**/*"
-                changeset "driverSwRequest.groovy"
-                changeset "tools/**/*"
-                // Add more files or directories as needed
-            }
-        }
         
         stage('Verify') {
             agent {
                 label 'EC2MatlabServer' // Label for Windows agent
+            }
+            when {
+                // Trigger the pipeline only if changes are detected in specific files or directories
+                anyOf {
+                    changeset "Design/DriverSwRequest/**/*"
+                    changeset "driverSwRequest.groovy"
+                    changeset "tools/**/*"
+                    // Add more files or directories as needed
+                }
             }
             steps {
                 script {
