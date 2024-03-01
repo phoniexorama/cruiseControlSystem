@@ -1,10 +1,8 @@
 pipeline {
-    when {
-        anyOf {
-            changeset "'Design/DriverSwRequest/**/*'"
-            changeset "driverSwRequest.groovy"
-            changeset "tools/**/*"
-        }
+    triggers {
+        changeset "Design/DriverSwRequest/**/*"
+        changeset "driverSwRequest.groovy"
+        changeset "tools/**/*"
     }
 
     agent none
