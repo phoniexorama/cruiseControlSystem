@@ -1,11 +1,16 @@
 pipeline {
-    triggers {
-        changeset "Design/DriverSwRequest/**/*"
-        changeset "driverSwRequest.groovy"
-        changeset "tools/**/*"
-    }
-
+    
     agent none
+    
+    triggers {
+        // Trigger the pipeline only if changes are detected in specific files or directories
+        anyOf {
+            changeset "Design/DriverSwRequest/**/*"
+            changeset "driverSwRequest.groovy"
+            changeset "tools/**/*"
+            // Add more files or directories as needed
+        }
+    }
 
     environment {
 
