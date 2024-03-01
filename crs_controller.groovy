@@ -29,8 +29,8 @@ pipeline {
             when {
                 // Trigger the pipeline only if changes are detected in specific files or directories
                 anyOf {
-                    changeset "Design/DriverSwRequest/**/*"
-                    changeset "driverSwRequest.groovy"
+                    changeset "Design/crs_controller/**/*"
+                    changeset "crs_controller.groovy"
                     changeset "tools/**/*"
                     // Add more files or directories as needed
                 }
