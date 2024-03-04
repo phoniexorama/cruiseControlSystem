@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 classdef opMode < Simulink.IntEnumType
   enumeration
     Disable(0)
