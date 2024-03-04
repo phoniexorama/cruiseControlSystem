@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 % This script uses the logs generated at every stage and generates a single
 % XML file containing the dynamic model results data
 % a html template which generates a summary report in the deploy stage
