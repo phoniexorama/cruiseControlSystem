@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 classdef reqMode < Simulink.IntEnumType
     enumeration
         NoRequest(0)
