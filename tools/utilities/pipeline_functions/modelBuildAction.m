@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 % This script builds a specified model.
 % Example: 
 % mb = modelBuildAction('TargetSpeedThrottle'); 
