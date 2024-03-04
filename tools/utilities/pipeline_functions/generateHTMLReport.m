@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 % This script uses the generated XML file and the styles present in XSL
 % file to give a final Summary Report for every model in the pipeline
 function generateHTMLReport(modelName)
