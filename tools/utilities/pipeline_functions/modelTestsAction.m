@@ -1,4 +1,3 @@
-% Copyright 2021 The MathWorks, Inc.
 % This script runs the test for a specified model.
 % Example: modelTestsAction('ModelName', 'TargetSpeedThrottle','TestFile', 'TargetSpeedThrottleTestManager.mldatx', ...
 %          'PDFReport', 'yes', 'SimulinkTestMgrResults', 'yes', 'JUnitFormatResults', 'yes'); 
