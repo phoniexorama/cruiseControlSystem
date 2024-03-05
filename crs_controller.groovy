@@ -5,7 +5,7 @@ pipeline {
 
         LOGS_PATH = "Code"
         ZIP_PATH = "C:\\Program Files\\7-Zip\\7z.exe"
-        ARTIFACTORY_URL = 'http://ec2-18-197-20-26.eu-central-1.compute.amazonaws.com:8081/artifactory'
+        ARTIFACTORY_URL = 'http://ec2-3-122-95-11.eu-central-1.compute.amazonaws.com:8081/artifactory/'
         TARGET_PATH = 'cruisecontrolsystem/crs_controller/'
         MODEL_BUILD_LOG = 'crs_controllerBuildLog.json'
 
